@@ -3,14 +3,21 @@ import { User } from './user.entity';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { hashSync as bcryptHashSync } from 'bcrypt';
 
 @Injectable()
 export class UserService {
+  static findbyusername(username: string) {
+    throw new Error('Method not implemented.');
+  }
   constructor(@InjectModel(User) private readonly userModel: typeof User) {}
 
   async create(user: CreateUserDto): Promise<User> {
     await this.validateEmail(user.email);
-    const createUser = await this.userModel.create(user);
+    const createUser = await this.userModel.create({
+      ...user,
+      password: bcryptHashSync(user.password, 10),
+    });
     return createUser;
   }
   async findAll() {
@@ -41,7 +48,7 @@ export class UserService {
     const userModel = await this.findOne(user_id);
     await userModel.destroy();
 
-    return { message: 'Modelo excluído com sucesso' };
+    return { message: 'Usuário excluído com sucesso' };
   }
 
   async validateEmail(email: string) {
@@ -57,5 +64,28 @@ export class UserService {
     }
 
     return true;
+  }
+
+  async findbyusername(username: string) {
+    const user = await this.userModel.findOne({
+      where: { username: username },
+    });
+
+    return user;
+  }
+
+  async findAllActive() {
+    return await this.userModel.findAll({ where: { active: true } });
+  }
+
+  async deactivate(user_id: string): Promise<{ message: string }> {
+    const user = await this.findOne(user_id);
+
+    await this.userModel.update(
+      { active: false },
+      { where: { user_id: user_id } },
+    );
+
+    return { message: 'user account deactivated' };
   }
 }
