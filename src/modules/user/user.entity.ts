@@ -12,45 +12,45 @@ import { Brand } from '../brand/brand.entity';
 
 @Table({
   tableName: 'users',
-  timestamps: false,
+  timestamps: true,
 })
 export class User extends Model<User, CreateUserDto> {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  public user_id: string;
+  declare user_id: string;
 
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
     autoIncrement: true,
   })
-  number: number;
+  declare number: number;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  username: string;
+  declare username: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  password: string;
+  declare password: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  email: string;
+  declare email: string;
 
   @Default(true)
   @Column({
     type: DataType.BOOLEAN,
   })
-  active: boolean;
+  declare active: boolean;
 
   @HasMany(() => Brand)
-  brands: Brand[];
+  declare brands: Brand[];
 }

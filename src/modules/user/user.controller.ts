@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -13,8 +14,9 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { User } from './user.entity';
 import { AuthGuard } from '../auth/auth.guard';
+import { QueryUserDto } from './dtos/query-user.dto';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -22,10 +24,10 @@ export class UserController {
   create(@Body() user: CreateUserDto) {
     return this.userService.create(user);
   }
-  @UseGuards(AuthGuard)
+
   @Get()
-  async findAll() {
-    return this.userService.findAll();
+  async findAll(@Query() query: QueryUserDto) {
+    return this.userService.findAll(query);
   }
   @UseGuards(AuthGuard)
   @Get('active')

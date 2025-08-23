@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { hashSync as bcryptHashSync } from 'bcrypt';
+import { QueryUserDto } from './dtos/query-user.dto';
 
 @Injectable()
 export class UserService {
@@ -20,9 +21,26 @@ export class UserService {
     });
     return createUser;
   }
-  async findAll() {
-    return await this.userModel.findAll();
+  async findAll(query: any) {
+    const page = query.page ? Number(query.page) : 1;
+    const limit = query.limit ? Number(query.limit) : 10;
+    const offset = (page - 1) * limit;
+
+    const { rows, count } = await this.userModel.findAndCountAll({
+      limit,
+      offset,
+      order: [['createdAt', 'DESC']],
+    });
+
+    return {
+      data: rows,
+      total: count,
+      page,
+      limit,
+      totalPages: Math.ceil(count / limit),
+    };
   }
+
   async findOne(user_id: string): Promise<User> {
     const user = await this.userModel.findByPk(user_id);
 
